@@ -17,13 +17,14 @@ class Solver(object):
 		self._valid_words = sorted_valid_words
 		self._board = board
 		self._found_words_so_far = set([])
+		self._words_by_starting_location = {}
 
 	def solve(self):
 		initial_locations = self._board.get_all_locations()
 		for location in initial_locations:
 			self._update_words_found_starting_at_location(location)
 
-		return self._found_words_so_far
+		return self._words_by_starting_location
 
 	def _update_words_found_starting_at_location(self, location):
 		stack = []
@@ -40,6 +41,8 @@ class Solver(object):
 			
 			if self._is_valid_word(word_so_far):
 				self._found_words_so_far.add(word_so_far)
+				self._words_by_starting_location.setdefault(location, set())
+				self._words_by_starting_location[location].add(word_so_far)
 
 			if self._is_valid_prefix(word_so_far):
 				for new_location in self._board.get_valid_neighboring_locations(current_location):
@@ -170,6 +173,11 @@ if __name__ == '__main__':
 	dictionary = get_valid_words_from_dictionary(SOWPODS_DICTIONARY_LOCATION)
 
 	solver = Solver(board, dictionary)
-	print solver.solve()
+	words_by_starting_location = solver.solve()
+
+	for location, words in words_by_starting_location.iteritems():
+		print '------- %s, %s -------' % (location[0], location[1])
+		for word in words:
+			print word
 
 
